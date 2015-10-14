@@ -94,17 +94,17 @@ module Beaker
       # Determine the type of vnic and use that for dev spec
       case vnic
       when RbVmomi::VIM::VirtualVmxnet3
-        dev_spec = VIM.VirtualVmxnet3(
+        dev_spec = RbVmomi::VIM.VirtualVmxnet3(
           :key => vnic.key,
           :backing => backing_spec
         )
       when Rbvmomi::VIM::VirtualVmxnet2
-        dev_spec = VIM.VirtualVmxnet2(
+        dev_spec = RbVmomi::VIM.VirtualVmxnet2(
           :key => vnic.key,
           :backing => backing_spec
         )
       when RbVmomi::VIM::VirtualVmxnet
-        dev_spec = VIM.VirtualVmxnet(
+        dev_spec = RbVmomi::VIM.VirtualVmxnet(
           :key => vnic.key,
           :backing => backing_spec
         )
@@ -197,10 +197,6 @@ module Beaker
 
           clonespec = create_clone_spec(h)
 
-          
-          # Deploy from specified template
-          tasks << vm[h['template']].CloneVM_Task( :folder => @vsphere_helper.find_folder(@options['folder']), :name => h['vmhostname'], :spec => clonespec )
-          
           # Find the portgroup to switch to from host options  
           pg = @vsphere_helper.find_pg(h['portgroup'])
             
@@ -218,7 +214,10 @@ module Beaker
           vnicspec = create_vnic_config_spec(vnic, pg)
           
           @logger.notify "Reconfiguring #{vnic.deviceInfo.label} to attach to port group #{pg.name}: #{pg.key} from #{vnic.backing.port.portgroupKey}"
-          
+
+          # Deploy from specified template
+          tasks << vm[h['template']].CloneVM_Task( :folder => @vsphere_helper.find_folder(@options['folder']), :name => h['vmhostname'], :spec => clonespec )
+
           # Reconfigure vnic
           tasks << vm[h['template']].ReconfigVM_Task( :spec => vnicspec)
             
