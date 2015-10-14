@@ -1,7 +1,7 @@
 require 'yaml' unless defined?(YAML)
 
 module Beaker
-  class Vcloud_Pg < Beaker::Hypervisor
+  class Vcloud_pg < Beaker::Hypervisor
 
     def initialize(vcloud_hosts, options)
       @options = options
