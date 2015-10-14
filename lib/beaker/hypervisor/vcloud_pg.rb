@@ -58,7 +58,7 @@ module Beaker
       devices.find { |device|
         case device
         when RbVmomi::VIM::VirtualVmxnet3,
-             Rbvmomi::VIM::VirtualVmxnet2,
+             RbVmomi::VIM::VirtualVmxnet2,
              RbVmomi::VIM::VirtualVmxnet
            vnics << device
          end
