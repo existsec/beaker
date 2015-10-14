@@ -84,18 +84,18 @@ module Beaker
     end
     
     def create_vnic_config_spec vnic, portgroup
-      #port_spec
+      # create port spec to pass to backing
       port_spec = RbVmomi::VIM.DistributedVirtualSwitchPortConnection(
         :switch_uuid => vnic.backing.port.switchUuid,
         :portgroupKey => portgroup.key
       )
   
-      #backing_spec
+      # create backing spec to pass to dev spec
       backing_spec = RbVmomi::VIM.VirtualEthernetCardDistributedVirtualPortBackingInfo(
         :port => port_spec
       )
  
-      #dev_spec 
+      # Determine the type of vnic and use that for dev spec
       case vnic
       when RbVmomi::VIM::VirtualVmxnet3
         dev_spec = VIM.VirtualVmxnet3(
@@ -113,7 +113,7 @@ module Beaker
           :backing => backing_spec
         )
       end
-  
+      # bring it all together for the final config spec
       spec = RbVmomi::VIM.VirtualMachineConfigSpec(
         :deviceChange => [
           {
@@ -205,12 +205,28 @@ module Beaker
           # Deploy from specified template
           tasks << vm[h['template']].CloneVM_Task( :folder => @vsphere_helper.find_folder(@options['folder']), :name => h['vmhostname'], :spec => clonespec )
           
+          # Find the portgroup to switch to from host options  
           pg = find_pg(h['portgroup'])
+            
+          # Get array of all vnics from the vm object
           vnics = find_host_vnics(vm[h['template']])
+          
+          # Select the vnic to change the port group on
+          # uses label on the vnic ending in a number
+          # that number goes here
+          # TODO change to host option  
           vnic = select_vnic(vnics, 1)
+          @logger.notify "Selected vnic #{vnic.deviceInfo.label}"
+          
+          # Create config spec
           vnicspec = create_vnic_config_spec(vnic, pg)
           
+          @logger.notify "Reconfiguring #{vnic.deviceInfo.label} to attach to port group #{pg.name}: #{pg.key} from #{vnic.backing.port.portgroupKey}"
+          
+          # Reconfigure vnic
           tasks << vm[h['template']].ReconfigVM_Task( :spec => vnicspec)
+            
+          # Power machine on
           tasks << vm[h['template']].PowerOnVM_Task
         end
         try = (Time.now - start) / 5
