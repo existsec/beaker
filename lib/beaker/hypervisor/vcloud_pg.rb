@@ -54,16 +54,14 @@ module Beaker
     # virtual nic class types
     def find_host_vnics vm
       vnics = []
-      vm.each { |vm_name,vm_object|
-        devices = vm_object.config.hardware.device
-        devices.find { |device|
-          case device
-          when RbVmomi::VIM::VirtualVmxnet3,
-               Rbvmomi::VIM::VirtualVmxnet2,
-               RbVmomi::VIM::VirtualVmxnet
-             vnics << device
-           end
-         }
+      devices = vm.config.hardware.device
+      devices.find { |device|
+        case device
+        when RbVmomi::VIM::VirtualVmxnet3,
+             Rbvmomi::VIM::VirtualVmxnet2,
+             RbVmomi::VIM::VirtualVmxnet
+           vnics << device
+         end
        }
        vnics
     end
