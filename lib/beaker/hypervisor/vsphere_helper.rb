@@ -160,6 +160,15 @@ class VsphereHelper
     base
   end
 
+  # Takes the portgroup name as a host option for the portgroup
+  # to switch the vm to after cloning
+  def find_pg port_group
+    datacenter = @connection.serviceInstance.find_datacenter
+    network = datacenter.network
+    pg = network.find { |f| f.name == port_group}
+    pg
+  end
+  
   def get_base_vm_container_from connection
     viewManager = connection.serviceContent.viewManager
     viewManager.CreateContainerView({

@@ -49,15 +49,6 @@ module Beaker
         end
       end
     end
-
-    # Takes the portgroup name as a host option for the portgroup
-    # to switch the vm to after cloning
-    def find_pg port_group
-      datacenter = @connection.serviceInstance.find_datacenter
-      network = datacenter.network
-      pg = network.find { |f| f.name == port_group}
-      pg
-    end
     
     # Parses the vm object for devices and searches those for allowable
     # virtual nic class types
@@ -213,7 +204,7 @@ module Beaker
           tasks << vm[h['template']].CloneVM_Task( :folder => @vsphere_helper.find_folder(@options['folder']), :name => h['vmhostname'], :spec => clonespec )
           
           # Find the portgroup to switch to from host options  
-          pg = find_pg(h['portgroup'])
+          pg = @vsphere_helper.find_pg(h['portgroup'])
             
           # Get array of all vnics from the vm object
           vnics = find_host_vnics(vm[h['template']])
