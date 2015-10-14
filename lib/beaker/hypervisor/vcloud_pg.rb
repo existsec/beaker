@@ -82,7 +82,7 @@ module Beaker
     def create_vnic_config_spec vnic, portgroup
       # create port spec to pass to backing
       port_spec = RbVmomi::VIM.DistributedVirtualSwitchPortConnection(
-        :switch_uuid => vnic.backing.port.switchUuid,
+        :switchUuid => vnic.backing.port.switchUuid,
         :portgroupKey => portgroup.key
       )
   
