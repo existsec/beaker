@@ -218,9 +218,19 @@ module Beaker
           # Deploy from specified template
           tasks << vm[h['template']].CloneVM_Task( :folder => @vsphere_helper.find_folder(@options['folder']), :name => h['vmhostname'], :spec => clonespec )
           
+          try = (Time.now - start) / 5
+          @vsphere_helper.wait_for_tasks(tasks, try, attempts)
+          @logger.notify 'Spent %.2f seconds deploying %s.' % [(Time.now - start), h['vmhostname']]
+          
           clone = @vsphere_helper.find_vms(h['vmhostname'])
+          
           # Reconfigure vnic
           tasks << clone[h['vmhostname']].ReconfigVM_Task( :spec => vnicspec)
+            
+          try = (Time.now - start) / 5
+          @vsphere_helper.wait_for_tasks(tasks, try, attempts)
+          @logger.notify 'Spent %.2f seconds reconfiguring %s portgroup to %s.' % [(Time.now - start), h['vmhostname'], h['portgroup']]
+
             
           # Power machine on
           tasks << clone[h['vmhostname']].PowerOnVM_Task
