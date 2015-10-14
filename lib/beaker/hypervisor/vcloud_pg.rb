@@ -1,7 +1,7 @@
 require 'yaml' unless defined?(YAML)
 
 module Beaker
-  class VcloudPg < Beaker::Hypervisor
+  class Vcloud_Pg < Beaker::Hypervisor
 
     def initialize(vcloud_hosts, options)
       @options = options
@@ -50,6 +50,8 @@ module Beaker
       end
     end
 
+    # Takes the portgroup name as a host option for the portgroup
+    # to switch the vm to after cloning
     def find_pg port_group
       datacenter = @connection.serviceInstance.find_datacenter
       network = datacenter.network
@@ -57,6 +59,8 @@ module Beaker
       pg
     end
     
+    # Parses the vm object for devices and searches those for allowable
+    # virtual nic class types
     def find_host_vnics vm
       vnics = []
       vm.each { |vm_name,vm_object|
@@ -73,6 +77,9 @@ module Beaker
        vnics
     end
     
+    # Select the vnic based on the label ending in a number
+    # LIMITATION: currently only works if label ends in number
+    # which is currently set to 1 
     def select_vnic vnics, ends_with_number
       selected_vnic = ''
       vnics.each { |vnic|
